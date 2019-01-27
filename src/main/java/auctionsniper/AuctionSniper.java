@@ -24,14 +24,11 @@ public class AuctionSniper implements AuctionEventListener {
     public void currentPrice(int price, int increment, PriceSource priceSource) {
         isWinning = priceSource == PriceSource.FromSniper;
 
-        switch (priceSource) {
-            case FromSniper:
-                sniperListener.sniperWinning();
-                break;
-            case FromOtherBidder:
-                auction.bid(price + increment);
-                sniperListener.sniperBidding();
-                break;
+        if(isWinning){
+            sniperListener.sniperWinning();
+        }else{
+            auction.bid(price + increment);
+            sniperListener.sniperBidding();
         }
     }
 
