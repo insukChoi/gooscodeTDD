@@ -2,10 +2,8 @@ package auctionsniper;
 
 import auctionsniper.ui.MainWindow;
 import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.Message;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -129,6 +127,7 @@ public class Main {
         public void sniperWon() {
             showStatus(MainWindow.STATUS_WON);
         }
+
 
         private void showStatus(final String status) {
             SwingUtilities.invokeLater(() -> ui.showStatus(status));

@@ -7,7 +7,7 @@ import java.awt.*;
 import static auctionsniper.Main.MAIN_WINDOW_NAME;
 
 public class MainWindow extends JFrame {
-    public static final String SNIPER_STATUS_NAME = "sniper status";
+    public static final String SNIPER_STATUS_NAME = "status-label";
 
     public static final String STATUS_LOST = "Lost";
     public static final String STATUS_JOINING = "Joining";

@@ -7,6 +7,8 @@ import org.jivesoftware.smack.packet.Message;
 import java.util.HashMap;
 import java.util.Map;
 
+import static auctionsniper.AuctionEventListener.*;
+
 public class AuctionMessageTranslator implements MessageListener {
     private final AuctionEventListener listener;
     private final String sniperId;
@@ -34,24 +36,33 @@ public class AuctionMessageTranslator implements MessageListener {
 
     private static class AuctionEvent {
         private final Map<String, String> fields = new HashMap<>();
-        public String type() { return get("Event"); }
-        public int currentPrice() { return getInt("CurrentPrice"); }
-        public int increment() { return getInt("Increment"); }
 
-        public AuctionEventListener.PriceSource isFrom(String sniperId) {
-            return sniperId.equals(bidder()) ? AuctionEventListener.PriceSource.FromSniper : AuctionEventListener.PriceSource.FromOtherBidder;
+        public String type() {
+            return get("Event");
+        }
+
+        public  int currentPrice() {
+            return getInt("CurrentPrice");
+        }
+
+        public int increment() {
+            return getInt("Increment");
+        }
+
+        public PriceSource isFrom(String sniperId) {
+            return sniperId.equals(bidder()) ? PriceSource.FromSniper : PriceSource.FromOtherBidder;
         }
 
         private String bidder() {
             return get("Bidder");
         }
 
-        private int getInt(String fieldName) {
-            return Integer.parseInt(get(fieldName));
-        }
-
         private String get(String fieldName) {
             return fields.get(fieldName);
+        }
+
+        private int getInt(String fieldName) {
+            return Integer.parseInt(get(fieldName));
         }
 
         private void addField(String field) {
@@ -61,17 +72,17 @@ public class AuctionMessageTranslator implements MessageListener {
 
         static AuctionEvent from(String messageBody) {
             AuctionEvent event = new AuctionEvent();
-
             for (String field : fieldsIn(messageBody)) {
                 event.addField(field);
             }
-
             return event;
         }
 
-        static String[] fieldsIn(String messageBody) {
+        private static String[] fieldsIn(String messageBody) {
             return messageBody.split(";");
         }
+
+
     }
 
 }
