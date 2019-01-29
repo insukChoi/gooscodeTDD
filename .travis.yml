@@ -11,6 +11,10 @@ branches:
   only:
   - master
 
+before_script:
+- export DISPLAY=:99
+- sh /etc/init.d/xvfb start
+
 install:
 - mvn test-compile -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 
