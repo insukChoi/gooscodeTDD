@@ -1,6 +1,8 @@
 [![Build Status](https://travis-ci.org/insukChoi/gooscodeTDD.svg?branch=master)](https://travis-ci.org/insukChoi/gooscodeTDD)
 [![Coverage Status](https://coveralls.io/repos/github/insukChoi/gooscodeTDD/badge.svg?branch=master)](https://coveralls.io/github/insukChoi/gooscodeTDD?branch=master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=insukChoi_gooscodeTDD&metric=alert_status)](https://sonarcloud.io/dashboard?id=insukChoi_gooscodeTDD)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=insukChoi_gooscodeTDD&metric=bugs)](https://sonarcloud.io/dashboard?id=insukChoi_gooscodeTDD)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=insukChoi_gooscodeTDD&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=insukChoi_gooscodeTDD)
 
 # gooscodeTDD
 
