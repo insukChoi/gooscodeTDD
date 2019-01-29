@@ -25,4 +25,4 @@ script:
 
 after_success:
 - mvn coveralls:report -DrepoToken=$COVERALLS_REPO_TOKEN
-- mvn sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.projectKey=$SONAR_LOGIN
+- mvn sonar:sonar -Dsonar.projectKey=insukChoi_gooscodeTDD -Dsonar.organization=insukchoi-github -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_TOKEN
