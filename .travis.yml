@@ -17,5 +17,7 @@ install:
 script:
 - # do stuff with open Java 8
 - jdk_switcher use openjdk8
-- mvn clean
-- mvn test
+- mvn clean package jacoco:report
+
+after_success:
+- mvn coveralls:report -DrepoToken=$COVERALLS_REPO_TOKEN
