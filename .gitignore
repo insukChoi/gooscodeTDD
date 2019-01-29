@@ -2,3 +2,6 @@ target/
 
 # JetBrain IDEA
 .idea/
+
+# etc
+.iml
