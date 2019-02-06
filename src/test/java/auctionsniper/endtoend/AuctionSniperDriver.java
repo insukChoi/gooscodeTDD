@@ -1,13 +1,17 @@
 package auctionsniper.endtoend;
 
 import auctionsniper.Main;
-import auctionsniper.ui.MainWindow;
 import com.objogate.wl.swing.AWTEventQueueProber;
 import com.objogate.wl.swing.driver.JFrameDriver;
-import com.objogate.wl.swing.driver.JLabelDriver;
+import com.objogate.wl.swing.driver.JTableDriver;
+import com.objogate.wl.swing.driver.JTableHeaderDriver;
 import com.objogate.wl.swing.gesture.GesturePerformer;
-import org.hamcrest.CoreMatchers;
+import com.objogate.wl.swing.matcher.IterableComponentsMatcher;
+import com.objogate.wl.swing.matcher.JLabelTextMatcher;
 
+import javax.swing.table.JTableHeader;
+
+import static java.lang.String.valueOf;
 
 public class AuctionSniperDriver extends JFrameDriver {
     public AuctionSniperDriver(int timeoutMillis){
@@ -19,8 +23,23 @@ public class AuctionSniperDriver extends JFrameDriver {
                 new AWTEventQueueProber(timeoutMillis, 100));
     }
 
-    public void showsSniperStatus(String statusText){
-        new JLabelDriver(
-                this, named(MainWindow.SNIPER_STATUS_NAME)).hasText(CoreMatchers.equalTo(statusText));
+    public void showsSniperStatus(String itemId, int lastPrice, int lastBid, String statusText){
+        JTableDriver table = new JTableDriver(this);
+        table.hasRow(IterableComponentsMatcher.matching(
+                JLabelTextMatcher.withLabelText(itemId),
+                JLabelTextMatcher.withLabelText(valueOf(lastPrice)),
+                JLabelTextMatcher.withLabelText(valueOf(lastBid)),
+                JLabelTextMatcher.withLabelText(statusText)
+        ));
+    }
+
+    public void hasColumnTitle() {
+        JTableHeaderDriver headers = new JTableHeaderDriver(this, JTableHeader.class);
+        headers.hasHeaders(IterableComponentsMatcher.matching(
+                JLabelTextMatcher.withLabelText("Item"),
+                JLabelTextMatcher.withLabelText("Last Price"),
+                JLabelTextMatcher.withLabelText("Last Bid"),
+                JLabelTextMatcher.withLabelText("State")
+        ));
     }
 }

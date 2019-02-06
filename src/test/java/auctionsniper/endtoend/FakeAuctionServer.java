@@ -60,7 +60,6 @@ public class FakeAuctionServer {
 
     public void announceClosed() throws XMPPException {
         currentChat.sendMessage("SOLVersion: 1.1; Event: CLOSE;");
-        //currentChat.sendMessage(new Message());
     }
 
     public void stop(){

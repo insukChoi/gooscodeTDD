@@ -1,6 +1,8 @@
 package auctionsniper;
 
 import auctionsniper.ui.MainWindow;
+import auctionsniper.ui.SnipersTableModel;
+import auctionsniper.ui.SwingThreadSniperListener;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -26,6 +28,7 @@ public class Main {
 
     private MainWindow ui;
     private Chat notToBeGCd;
+    private final SnipersTableModel snipers = new SnipersTableModel();
 
     public Main() throws Exception{
         startUserInterface();
@@ -39,22 +42,14 @@ public class Main {
     private void joinAuction(XMPPConnection connection, String itemId) throws XMPPException {
         disconnectWhenUICloses(connection);
 
-        final Chat chat = connection.getChatManager().createChat(
-                auctionId(itemId, connection),
-                null
-        );
+        Chat chat = connection.getChatManager().createChat(auctionId(itemId, connection), null);
         // GC 대상이 되지 않게 할당한다.
         this.notToBeGCd = chat;
 
         Auction auction = new XMPPAuction(chat);
-
-        chat.addMessageListener(
-                new AuctionMessageTranslator(
-                        connection.getUser(),
-                        new AuctionSniper(auction, new SniperStateDisplayer())
-                )
-        );
-
+        chat.addMessageListener(new AuctionMessageTranslator(
+                connection.getUser(),
+                new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers))));
         auction.join();
     }
 
@@ -76,61 +71,12 @@ public class Main {
 
 
     private void startUserInterface() throws Exception{
-        SwingUtilities.invokeAndWait(new Runnable() {
-            public void run() {
-                ui = new MainWindow();
-            }
-        });
+        SwingUtilities.invokeAndWait(() -> ui = new MainWindow(snipers));
+
     }
-
-    private static XMPPConnection connectTo(String hostname, String username, String password) throws XMPPException{
-        XMPPConnection connection = new XMPPConnection(hostname);
-        connection.login(username, password, AUCTION_RESOURCE);
-
-        return connection;
-    }
-
     private static String auctionId(String itemId, XMPPConnection connection){
         return String.format(AUCTION_ID_FORMAT, itemId, connection.getServiceName());
     }
 
-    public void sniperLost() {
 
-    }
-
-    public void sniperBidding() {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                ui.showStatus(MainWindow.STATUS_BIDDING);
-            }
-        });
-    }
-
-    private class SniperStateDisplayer implements SniperListener {
-
-        @Override
-        public void sniperLost() {
-            showStatus(MainWindow.STATUS_LOST);
-        }
-
-        @Override
-        public void sniperBidding() {
-            showStatus(MainWindow.STATUS_BIDDING);
-        }
-
-        @Override
-        public void sniperWinning() {
-            showStatus(MainWindow.STATUS_WINNING);
-        }
-
-        @Override
-        public void sniperWon() {
-            showStatus(MainWindow.STATUS_WON);
-        }
-
-
-        private void showStatus(final String status) {
-            SwingUtilities.invokeLater(() -> ui.showStatus(status));
-        }
-    }
 }
