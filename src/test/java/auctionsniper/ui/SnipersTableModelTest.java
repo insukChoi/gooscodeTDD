@@ -38,8 +38,6 @@ public class SnipersTableModelTest {
     assertColumnEquals(Column.LAST_PRICE, 555);
     assertColumnEquals(Column.LAST_BID, 666);
     assertColumnEquals(Column.SNIPER_STATE, SnipersTableModel.textFor(SniperState.BIDDING));
-
-    verify(listener).tableChanged(refEq(new TableModelEvent(model, 0)));
   }
 
   @Test
