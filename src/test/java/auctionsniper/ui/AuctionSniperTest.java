@@ -1,4 +1,4 @@
-package auctionsniper.unit;
+package auctionsniper.ui;
 
 import auctionsniper.*;
 import org.junit.Test;
@@ -8,14 +8,16 @@ import org.mockito.Mockito;
 import static auctionsniper.AuctionEventListener.PriceSource;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
+import auctionsniper.UserRequestListener.Item;
 
 
 public class AuctionSniperTest {
 
-    private final String ITEM_ID = "test-item";
+    protected static final String ITEM_ID = "item-id";
+    public static final UserRequestListener.Item ITEM = new Item(ITEM_ID);
     private final Auction auction = Mockito.mock(Auction.class);
     private final SniperListener sniperListener = Mockito.mock(SniperListener.class);
-    private final AuctionSniper sniper = new AuctionSniper(ITEM_ID, auction, sniperListener);
+    private final AuctionSniper sniper = new AuctionSniper(ITEM, auction);
     private final ArgumentCaptor<SniperSnapshot> argument = ArgumentCaptor.forClass(SniperSnapshot.class);
 
     @Test

@@ -1,9 +1,13 @@
 package auctionsniper.endtoend;
 
-import auctionsniper.Main;
+import auctionsniper.XMPPAuction;
 import org.hamcrest.Matcher;
-import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
+import org.junit.Assert;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -11,6 +15,9 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 
 public class FakeAuctionServer {
@@ -40,17 +47,13 @@ public class FakeAuctionServer {
         });
     }
 
-    public void hasReceivedJoinRequestFromSniper() throws InterruptedException {
-        messageListener.receivesAMessage(is(anything()));
-    }
-
     public void hasReceivedJoinRequestFromSniper(String sniperId) throws InterruptedException {
-        receivesAMessageMatching(sniperId, equalTo(Main.JOIN_COMMAND_FORMAT));
+        receivesAMessageMatching(sniperId, equalTo(XMPPAuction.JOIN_COMMAND_FORMAT));
     }
 
     public void hasReceivedBid(int bid, String sniperId) throws InterruptedException {
         receivesAMessageMatching(sniperId,
-                equalTo(String.format(Main.BID_COMMAND_FORMAT, bid)));
+                equalTo(String.format(XMPPAuction.BID_COMMAND_FORMAT, bid)));
     }
 
     private void receivesAMessageMatching(String sniperId, Matcher<? super String> messageMatcher) throws InterruptedException {
@@ -78,20 +81,21 @@ public class FakeAuctionServer {
         );
     }
 
-
     public class SingleMessageListener implements MessageListener {
         private final ArrayBlockingQueue<Message> messages =
                 new ArrayBlockingQueue<Message>(1);
-
-        public void processMessage(Chat chat, Message message){
+        public void processMessage(Chat chat, Message message) {
             messages.add(message);
         }
+        public void receivesAMessage() throws InterruptedException {
+            Assert.assertThat("Message", messages.poll(5, TimeUnit.SECONDS), is(notNullValue()));
+        }
 
-        @SuppressWarnings("unchecked")
-        public void receivesAMessage(Matcher<? super String> messageMatcher) throws InterruptedException {
+        public void receivesAMessage(Matcher<? super String> messageMatcher)
+                throws InterruptedException
+        {
             final Message message = messages.poll(5, TimeUnit.SECONDS);
-            assertThat("Message", message, is(notNullValue()));
-            assertThat(message.getBody(), messageMatcher);
+            Assert.assertThat(message, hasProperty("body", messageMatcher));
         }
     }
 }
