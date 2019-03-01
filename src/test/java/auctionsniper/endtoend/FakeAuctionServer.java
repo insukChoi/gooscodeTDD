@@ -1,23 +1,21 @@
 package auctionsniper.endtoend;
 
-import auctionsniper.XMPPAuction;
+import auctionsniper.xmpp.AuctionMessageTranslator;
+import auctionsniper.xmpp.XMPPAuction;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
-import org.junit.Assert;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 
 
 public class FakeAuctionServer {
@@ -74,28 +72,26 @@ public class FakeAuctionServer {
     }
 
     public void reportPrice(int price, int increment, String bidder) throws XMPPException {
-        currentChat.sendMessage(
-                String.format("SQLVersion: 1.1; Event: PRICE; "
-                    + "CurrentPrice: %d; Increment: %d; Bidder: %s;",
-                        price, increment, bidder)
-        );
+        currentChat.sendMessage(String.format(AuctionMessageTranslator.PRICE_COMMAND_FORMAT, price, increment, bidder));
     }
 
-    public class SingleMessageListener implements MessageListener {
-        private final ArrayBlockingQueue<Message> messages =
-                new ArrayBlockingQueue<Message>(1);
+    public void sendInvalidMessageContaining(String brokenMessage) throws XMPPException {
+        currentChat.sendMessage(brokenMessage);
+    }
+
+    private class SingleMessageListener implements MessageListener {
+
+        private final ArrayBlockingQueue<Message> messages = new ArrayBlockingQueue<>(1);
+
+        @Override
         public void processMessage(Chat chat, Message message) {
             messages.add(message);
         }
-        public void receivesAMessage() throws InterruptedException {
-            Assert.assertThat("Message", messages.poll(5, TimeUnit.SECONDS), is(notNullValue()));
+
+        public void receivesAMessage(Matcher<? super String> messageMatcher) throws InterruptedException {
+            final Message message = messages.poll(5, TimeUnit.SECONDS);
+            assertThat(message, Matchers.hasProperty("body", messageMatcher));
         }
 
-        public void receivesAMessage(Matcher<? super String> messageMatcher)
-                throws InterruptedException
-        {
-            final Message message = messages.poll(5, TimeUnit.SECONDS);
-            Assert.assertThat(message, hasProperty("body", messageMatcher));
-        }
     }
 }

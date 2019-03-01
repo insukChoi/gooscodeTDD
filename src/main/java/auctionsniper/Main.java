@@ -1,7 +1,7 @@
 package auctionsniper;
 
-import auctionsniper.ui.MainWindow;
-import auctionsniper.ui.SnipersTableModel;
+import auctionsniper.unit.ui.MainWindow;
+import auctionsniper.unit.ui.SnipersTableModel;
 import auctionsniper.xmpp.XMPPAuctionHouse;
 import org.jivesoftware.smack.Chat;
 

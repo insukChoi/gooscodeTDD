@@ -1,7 +1,7 @@
 /**
  * 
  */
-package auctionsniper.ui;
+package auctionsniper.unit.ui;
 
 import auctionsniper.SniperListener;
 import auctionsniper.SniperSnapshot;

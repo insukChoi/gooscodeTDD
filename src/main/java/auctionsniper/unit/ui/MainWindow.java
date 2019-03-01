@@ -1,14 +1,16 @@
-package auctionsniper.ui;
+package auctionsniper.unit.ui;
 
+import auctionsniper.Item;
 import auctionsniper.SniperPortfolio;
 import auctionsniper.UserRequestListener;
-import auctionsniper.util.Announcer;
+import auctionsniper.unit.ui.cell.DecimalCellRenderer;
+import auctionsniper.unit.util.Announcer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import auctionsniper.UserRequestListener.Item;
+import java.text.NumberFormat;
 
 public class MainWindow extends JFrame {
     public static final String APPLICATION_TITLE = "Auction Sniper";
@@ -30,42 +32,63 @@ public class MainWindow extends JFrame {
         setVisible(true);
     }
 
+    private JTable makeSnipersTable(SniperPortfolio portfolio) {
+        SnipersTableModel model = new SnipersTableModel();
+        portfolio.addPortfolioListener(model);
 
-    private void fillContentPane(JTable snipersTable, JPanel controls){
+        final JTable snipersTable = new JTable(model);
+        snipersTable.setName(SNIPERS_TABLE_NAME);
+
+        // format number
+        DecimalCellRenderer decimalCellRenderer = new DecimalCellRenderer();
+        snipersTable.getColumnModel().getColumn(Column.LAST_PRICE.ordinal()).setCellRenderer(decimalCellRenderer);
+        snipersTable.getColumnModel().getColumn(Column.LAST_BID.ordinal()).setCellRenderer(decimalCellRenderer);
+
+        return snipersTable;
+    }
+
+    private JPanel makeControls() {
+        JPanel controls = new JPanel();
+
+        final JTextField itemIdField = new JTextField();
+        itemIdField.setColumns(10);
+        itemIdField.setName(NEW_ITEM_ID_NAME);
+
+        final JFormattedTextField stopPriceField = new JFormattedTextField(NumberFormat.getInstance());
+        stopPriceField.setColumns(7);
+        stopPriceField.setName(NEW_ITEM_STOP_PRICE_NAME);
+
+        final JButton joinAuctionButton = new JButton("Join Auction");
+        joinAuctionButton.setName(JOIN_BUTTON_NAME);
+        joinAuctionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                userRequests.announce().joinAuction(new Item(itemId(), stopPrice()));
+            }
+
+            private String itemId() {
+                return itemIdField.getText();
+            }
+
+            private int stopPrice() {
+                return ((Number) stopPriceField.getValue()).intValue();
+            }
+        });
+
+        controls.add(new JLabel("Item:"));
+        controls.add(itemIdField);
+        controls.add(new JLabel("Stop price:"));
+        controls.add(stopPriceField);
+        controls.add(joinAuctionButton);
+
+        return controls;
+    }
+
+    private void fillContentPane(JTable snipersTable, JPanel controls) {
         final Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
         contentPane.add(controls, BorderLayout.NORTH);
         contentPane.add(new JScrollPane(snipersTable), BorderLayout.CENTER);
-    }
-
-    private JTable makeSnipersTable(SniperPortfolio portfolio) {
-        SnipersTableModel model = new SnipersTableModel();
-        portfolio.addPortfolioListener(model);
-        JTable snipersTable = new JTable(model);
-        snipersTable.setName(SNIPERS_TABLE_NAME);
-        return snipersTable;
-    }
-
-    private JPanel makeControls(){
-        final JTextField itemIdField = itemIdField();
-
-        JPanel controls = new JPanel(new FlowLayout());
-        controls.add(itemIdField);
-
-        JButton joinAuctionButton = new JButton("Join Auction");
-        joinAuctionButton.setName(JOIN_BUTTON_NAME);
-
-        joinAuctionButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                userRequests.announce().joinAuction(new Item(itemId()));
-            }
-            private String itemId() {
-                return itemIdField.getText();
-            }
-        });
-        controls.add(joinAuctionButton);
-
-        return controls;
     }
 
     private JTextField itemIdField() {

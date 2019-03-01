@@ -16,6 +16,22 @@ public class SniperSnapshot {
     this.lastBid = lastBid;
     this.state = state;
   }
+
+  public String getItemId() {
+    return itemId;
+  }
+
+  public int getLastPrice() {
+    return lastPrice;
+  }
+
+  public int getLastBid() {
+    return lastBid;
+  }
+
+  public SniperState getState() {
+    return state;
+  }
   
   @Override
   public boolean equals(Object obj) {
@@ -58,6 +74,9 @@ public class SniperSnapshot {
     return itemId.equals(sniperSnapshot.itemId);
   }
 
+  public boolean isState(SniperState state) {
+    return this.state == state;
+  }
 
 
 }

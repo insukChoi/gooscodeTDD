@@ -1,20 +1,23 @@
 package auctionsniper;
 
-
-import auctionsniper.util.Announcer;
-import auctionsniper.UserRequestListener.Item;
+import auctionsniper.unit.util.Announcer;
 
 public class AuctionSniper implements AuctionEventListener {
     private final Announcer<SniperListener> listeners = Announcer.to(SniperListener.class);
-
+    private final Item item;
     private final Auction auction;
     private SniperSnapshot snapshot;
-    private final UserRequestListener.Item item;
 
     public AuctionSniper(Item item, Auction auction) {
         this.item = item;
         this.auction = auction;
-        this.snapshot = SniperSnapshot.joining(item.identifier);
+        this.snapshot = SniperSnapshot.joining(item.getIdentifier());
+    }
+
+    @Override
+    public void auctionFailed() {
+        snapshot = snapshot.failed();
+        notifyChange();
     }
 
     @Override
@@ -23,20 +26,24 @@ public class AuctionSniper implements AuctionEventListener {
         notifyChange();
     }
 
-
     @Override
     public void currentPrice(int price, int increment, PriceSource priceSource) {
-        switch (priceSource) {
-            case FromSniper:
-                snapshot = snapshot.winning(price);
-                break;
-            case FromOtherBidder:
-                int bid = price + increment;
-                auction.bid(bid);
+        if (priceSource == PriceSource.FromSniper) {
+            snapshot = snapshot.winning(price);
+        } else {
+            int bid = price + increment;
+            if (item.allowsBid(bid)) {
                 snapshot = snapshot.bidding(price, bid);
-                break;
+            } else {
+                snapshot = snapshot.losing(price);
+            }
         }
+
         notifyChange();
+
+        if (snapshot.isState(SniperState.BIDDING)) {
+            auction.bid(price + increment);
+        }
     }
 
     private void notifyChange() {
@@ -50,5 +57,4 @@ public class AuctionSniper implements AuctionEventListener {
     public void addSniperListener(SniperListener listener) {
         listeners.addListener(listener);
     }
-
 }
